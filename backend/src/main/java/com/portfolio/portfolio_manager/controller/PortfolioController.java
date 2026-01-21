@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.portfolio.portfolio_manager.domain.Portfolio;
 import com.portfolio.portfolio_manager.domain.Position;
+import com.portfolio.portfolio_manager.service.PortfolioService;
 
 import java.util.UUID;
 import java.util.List;
@@ -11,6 +12,12 @@ import java.util.UUID;
 
 @RestController
 public class PortfolioController {
+    
+    private final PortfolioService portfolioService;
+
+    public PortfolioController(PortfolioService portfolioService) {
+        this.portfolioService = portfolioService;
+    }
 
     @GetMapping("/api/portfolios")
     public List<Portfolio> getPortfolios() {
