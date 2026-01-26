@@ -21,6 +21,10 @@ public class Portfolio {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -32,5 +36,19 @@ public class Portfolio {
     public List<Position> getPositions() {
         return positions;
     }
+
+    public void setPositions(List<Position> positions) {
+        this.positions = positions;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    
     
 }

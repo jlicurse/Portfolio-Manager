@@ -10,15 +10,19 @@ import java.util.*;
 @Service
 public class PortfolioService {
 
-    private final List<Portfolio> portfolios;
+    private final List<Portfolio> portfolios = new ArrayList<>();
 
     public PortfolioService() {
-        List<Position> positions = List.of(
-            new Position("AAPL", 25, new BigDecimal("145.00")),
-            new Position("MSFT", 10, new BigDecimal("2725.00"))
-        );
-        this.portfolios = List.of(
-            new Portfolio(UUID.randomUUID(), "Tech Growth", "Jonathan", positions)
+        portfolios.add(
+            new Portfolio(
+                UUID.randomUUID(),
+                "Tech Growth",
+                "Long-term growth focused tech portfolio",
+                List.of(
+                    new Position("AAPL", 50, BigDecimal.valueOf(185.23)),
+                    new Position("MSFT", 30, BigDecimal.valueOf(275.00))
+                )
+            )
         );
         
     }
@@ -32,6 +36,18 @@ public class PortfolioService {
                 .filter(portfolio -> portfolio.getId().equals(id))
                 .findFirst();
     }
+
+    public Portfolio createPortfolio(Portfolio portfolio) {
+        if (portfolio.getId() == null) {
+            portfolio.setId(UUID.randomUUID());
+        }
+        if (portfolio.getPositions() == null) {
+            portfolio.setPositions(List.of());
+        }
+        portfolios.add(portfolio);
+        return portfolio;
 }
+}
+
 
 
