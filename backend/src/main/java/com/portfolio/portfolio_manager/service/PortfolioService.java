@@ -47,6 +47,12 @@ public class PortfolioService {
         portfolios.add(portfolio);
         return portfolio;
 }
+
+    public boolean deletePortfolio(UUID id) {
+        return portfolios.removeIf(portfolio -> portfolio.getId().equals(id));
+    }
+
+
 }
 
 

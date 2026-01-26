@@ -40,6 +40,17 @@ public class PortfolioController {
         Portfolio createdPortfolio = portfolioService.createPortfolio(portfolio);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
     }
+
+    @DeleteMapping("/api/portfolios/{id}")
+    public ResponseEntity<Void> deletePortfolio(@PathVariable UUID id) {
+        boolean deleted = portfolioService.deletePortfolio(id); 
+
+        if (deleted) {
+            return ResponseEntity.noContent().build(); //204 No Content
+        } else {
+            return ResponseEntity.notFound().build(); //404 Not Found
+        }
+    }
     
 }
     
