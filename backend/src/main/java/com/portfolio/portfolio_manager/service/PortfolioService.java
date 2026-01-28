@@ -3,6 +3,10 @@ package com.portfolio.portfolio_manager.service;
 import com.portfolio.portfolio_manager.domain.Portfolio;
 import com.portfolio.portfolio_manager.domain.Position; 
 import org.springframework.stereotype.Service; 
+import com.portfolio.portfolio_manager.persistence.PortfolioEntity;
+import com.portfolio.portfolio_manager.persistence.PositionEntity;
+import com.portfolio.portfolio_manager.persistence.PortfolioRepository;
+
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -10,49 +14,60 @@ import java.util.*;
 @Service
 public class PortfolioService {
 
-    private final List<Portfolio> portfolios = new ArrayList<>();
+    private final PortfolioRepository repo;
 
-    public PortfolioService() {
-        portfolios.add(
-            new Portfolio(
-                UUID.randomUUID(),
-                "Tech Growth",
-                "Long-term growth focused tech portfolio",
-                List.of(
-                    new Position("AAPL", 50, BigDecimal.valueOf(185.23)),
-                    new Position("MSFT", 30, BigDecimal.valueOf(275.00))
-                )
-            )
-        );
-        
+    public PortfolioService(PortfolioRepository repo) {
+        this.repo = repo;
     }
 
     public List<Portfolio> getPortfolios() {
-        return portfolios;
+        return repo.findAll().stream().map(this::toDomain).toList();
+    }
+
+    public Portfolio toDomain(PortfolioEntity entity) { 
+        List<Position> positions = entity.getPositions().stream().map(p -> new Position(
+            p.getSymbol(), 
+            p.getQuantity(), 
+            p.getAvgPrice()
+        )).toList(); 
+
+        return new Portfolio(entity.getId(), entity.getName(), entity.getOwner(), positions);
+    }
+
+    private PortfolioEntity toEntity(Portfolio d) {
+        PortfolioEntity e = new PortfolioEntity(); 
+        e.setId(d.getId());
+        e.setName(d.getName());
+        e.setOwner(d.getOwner());
+
+        if (d.getPositions() != null) {
+            for (Position p : d.getPositions()) {
+                PositionEntity pe = new PositionEntity();
+                pe.setSymbol(p.getSymbol());
+                pe.setQuantity(p.getQuantity());
+                pe.setAvgPrice(p.getAvgPrice());
+                pe.setPortfolio(e); 
+                e.getPositions().add(pe);
+        }
     }
 
     public Optional<Portfolio> getPortfolioById(UUID id) {
-        return portfolios.stream()
-                .filter(portfolio -> portfolio.getId().equals(id))
-                .findFirst();
+        return repo.findById(id).map(this::toDomain);
     }
 
     public Portfolio createPortfolio(Portfolio portfolio) {
-        if (portfolio.getId() == null) {
-            portfolio.setId(UUID.randomUUID());
-        }
-        if (portfolio.getPositions() == null) {
-            portfolio.setPositions(List.of());
-        }
-        portfolios.add(portfolio);
-        return portfolio;
-}
-
-    public boolean deletePortfolio(UUID id) {
-        return portfolios.removeIf(portfolio -> portfolio.getId().equals(id));
+        PortfolioEntity saved = repo.save(toEntity(portfolio));
+        return toDomain(saved);
     }
 
-
+    public boolean deletePortfolio(UUID id) {
+        if (repo.existsById(id)) {
+            repo.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 

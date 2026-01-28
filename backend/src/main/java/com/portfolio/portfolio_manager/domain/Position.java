@@ -5,10 +5,10 @@ import java.math.BigDecimal;
 public class Position {
 
     private String symbol;
-    private int quantity;
+    private BigDecimal quantity;
     private BigDecimal avgPrice;
 
-    public Position(String symbol, int quantity, BigDecimal avgPrice) {
+    public Position(String symbol, BigDecimal quantity, BigDecimal avgPrice) {
         this.symbol = symbol;
         this.quantity = quantity;
         this.avgPrice = avgPrice;
@@ -18,7 +18,7 @@ public class Position {
         return symbol;
     }
 
-    public int getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
@@ -30,7 +30,7 @@ public class Position {
         this.symbol = symbol;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
