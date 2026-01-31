@@ -1,6 +1,12 @@
 package com.portfolio.portfolio_manager.domain;
 import java.util.UUID; 
 import java.util.List;
+/*
+    This is the domain model class for Portfolio.
+    Portfolio represents a collection of financial positions owned by an individual or entity.
+
+    "Domain" classes are plain Java objects that represent the core business entities in the application.
+*/
 
 public class Portfolio {
 

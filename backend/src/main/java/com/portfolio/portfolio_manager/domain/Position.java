@@ -2,6 +2,13 @@ package com.portfolio.portfolio_manager.domain;
 
 import java.math.BigDecimal;
 
+/*
+    This is the domain model class for Position.
+    Position represents a financial position within a portfolio.
+
+    "Domain" classes are plain Java objects that represent the core business entities in the application.
+*/
+
 public class Position {
 
     private String symbol;

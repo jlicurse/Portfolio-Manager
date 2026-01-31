@@ -12,6 +12,16 @@ import com.portfolio.portfolio_manager.service.PortfolioService;
 
 import java.util.UUID;
 import java.util.List;
+
+/*
+
+    This is the controller class for Portfolio.
+    It handles HTTP requests related to portfolios.
+
+    "Controller" classes in Spring are used to define RESTful endpoints.
+    They receive HTTP requests, delegate processing to service classes, and return HTTP responses.
+
+*/
   
 
 @RestController

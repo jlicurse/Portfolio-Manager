@@ -11,6 +11,16 @@ import com.portfolio.portfolio_manager.persistence.PortfolioRepository;
 import java.math.BigDecimal;
 import java.util.*;
 
+/*
+
+    This is the service class for Portfolio.
+    It contains business logic for managing portfolios.
+
+    "Service" classes in Spring are used to encapsulate the business logic of the application.
+    Called by controllers to perform operations related to the domain, such as creating, retrieving, updating, or deleting portfolios.
+
+*/
+
 @Service
 public class PortfolioService {
 
@@ -49,7 +59,10 @@ public class PortfolioService {
                 pe.setPortfolio(e); 
                 e.getPositions().add(pe);
         }
+
     }
+    return e; 
+}
 
     public Optional<Portfolio> getPortfolioById(UUID id) {
         return repo.findById(id).map(this::toDomain);
