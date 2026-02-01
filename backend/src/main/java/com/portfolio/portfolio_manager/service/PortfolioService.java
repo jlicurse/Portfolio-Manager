@@ -26,14 +26,26 @@ public class PortfolioService {
 
     private final PortfolioRepository repo;
 
+    /*
+    This function is the constructor for PortfolioService.
+    It initializes the PortfolioService with a PortfolioRepository instance.
+    */ 
     public PortfolioService(PortfolioRepository repo) {
         this.repo = repo;
     }
 
+
+    /*
+    This function retrieves all portfolios from the repository, converts them to domain objects, and returns them as a list.
+    */
     public List<Portfolio> getPortfolios() {
         return repo.findAll().stream().map(this::toDomain).toList();
     }
 
+
+    /*
+    This function converts a PortfolioEntity to a Portfolio domain object.
+    */
     public Portfolio toDomain(PortfolioEntity entity) { 
         List<Position> positions = entity.getPositions().stream().map(p -> new Position(
             p.getSymbol(), 
@@ -44,6 +56,9 @@ public class PortfolioService {
         return new Portfolio(entity.getId(), entity.getName(), entity.getOwner(), positions);
     }
 
+    /*
+    This function converts a Portfolio domain object to a PortfolioEntity.
+    */
     private PortfolioEntity toEntity(Portfolio d) {
         PortfolioEntity e = new PortfolioEntity(); 
         e.setId(d.getId());
@@ -64,15 +79,27 @@ public class PortfolioService {
     return e; 
 }
 
+/*
+This function retrieves a portfolio by its ID, converts it to a domain object, and returns it wrapped in an Optional.
+*/
     public Optional<Portfolio> getPortfolioById(UUID id) {
         return repo.findById(id).map(this::toDomain);
     }
 
+
+    /*
+    This function creates a new portfolio by saving it to the repository and returns the saved portfolio as a domain object.
+    */
     public Portfolio createPortfolio(Portfolio portfolio) {
         PortfolioEntity saved = repo.save(toEntity(portfolio));
         return toDomain(saved);
     }
 
+
+    /*
+    This function deletes a portfolio by its ID. 
+    It returns true if the portfolio existed and was deleted, or false if the portfolio did not exist.
+    */
     public boolean deletePortfolio(UUID id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
@@ -81,7 +108,61 @@ public class PortfolioService {
             return false;
         }
     }
+
+    /*
+    This function adds a position to a portfolio identified by portfolioId. 
+    It returns an Optional containing the updated portfolio if found, or an empty Optional if the portfolio does not exist.
+    */
+    public Optional<Portfolio> addPosition(UUID portfolioId, Position position) {
+        return repo.findById(portfolioId).map(portfolioEntity -> {
+
+            PositionEntity pe = new PositionEntity(); 
+            pe.setSymbol(position.getSymbol());
+            pe.setQuantity(position.getQuantity());
+            pe.setAvgPrice(position.getAvgPrice());
+             
+            pe.setPortfolio(portfolioEntity);
+            portfolioEntity.getPositions().add(pe);
+
+            PortfolioEntity updatedEntity = repo.save(portfolioEntity);
+            return toDomain(updatedEntity);
+
+        }); 
+    }
+
+    /*
+    This function retrieves the list of positions for a given portfolio identified by portfolioId. 
+    It returns an Optional containing the list of positions if the portfolio exists, or an empty Optional if it does not.
+    */
+    public Optional<List<Position>> getPositions(UUID portfolioId) {
+        return repo.findById(portfolioId).map(this::toDomain).map(Portfolio::getPositions); 
+    }   
+     
+
+    /*
+    This function deletes a position identified by positionId from a portfolio identified by portfolioId. 
+    It returns true if the position was found and deleted, or false if the portfolio or position
+    */
+    public boolean deletePosition(UUID portfolioId, UUID positionId){
+        Optional<PortfolioEntity> opt = repo.findById(portfolioId); 
+        if (opt.isEmpty()) return false; 
+
+        PortfolioEntity portfolio = opt.get(); 
+
+        boolean removed = portfolio.getPositions().removeIf(p -> p.getId().equals(positionId)); 
+        if (!removed) {
+            return false; 
+        }
+
+        repo.save(portfolio); 
+        return true; 
+
+    }
 }
+
+
+
+
 
 
 

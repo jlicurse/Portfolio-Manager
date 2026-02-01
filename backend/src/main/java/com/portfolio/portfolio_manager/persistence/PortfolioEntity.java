@@ -7,7 +7,7 @@ import java.util.*;
 @Table(name = "portfolios")
 public class PortfolioEntity {
 
-    /*
+/*
     These are the JPA entity definitions for PortfolioEntity.
     PortfolioEntity represents a financial portfolio.
 
