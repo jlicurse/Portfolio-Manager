@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local dev database artifacts (H2)
+backend/data/
+*.mv.db
+*.trace.db
