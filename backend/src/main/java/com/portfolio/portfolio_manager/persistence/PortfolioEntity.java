@@ -21,6 +21,9 @@ public class PortfolioEntity {
     private String name;
     private String owner; 
 
+    @Version
+    private Long version;
+
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true) 
     private List<PositionEntity> positions = new ArrayList<>();

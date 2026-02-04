@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import com.portfolio.portfolio_manager.persistence.PortfolioEntity;
 import com.portfolio.portfolio_manager.persistence.PositionEntity;
 import com.portfolio.portfolio_manager.persistence.PortfolioRepository;
+import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
+import com.portfolio.portfolio_manager.dto.PortfolioResponse;
+import com.portfolio.portfolio_manager.dto.PositionResponse;
 
 
 import java.math.BigDecimal;
@@ -48,8 +51,9 @@ public class PortfolioService {
     */
     public Portfolio toDomain(PortfolioEntity entity) { 
         List<Position> positions = entity.getPositions().stream().map(p -> new Position(
+            p.getId(),           
             p.getSymbol(), 
-            p.getQuantity(), 
+            p.getQuantity(),
             p.getAvgPrice()
         )).toList(); 
 
@@ -61,7 +65,6 @@ public class PortfolioService {
     */
     private PortfolioEntity toEntity(Portfolio d) {
         PortfolioEntity e = new PortfolioEntity(); 
-        e.setId(d.getId());
         e.setName(d.getName());
         e.setOwner(d.getOwner());
 
@@ -90,9 +93,15 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     /*
     This function creates a new portfolio by saving it to the repository and returns the saved portfolio as a domain object.
     */
-    public Portfolio createPortfolio(Portfolio portfolio) {
+    public PortfolioResponse createPortfolio(PortfolioCreateRequest request) {
+        Portfolio portfolio = new Portfolio(
+            null,
+            request.name(),
+            request.owner(),
+            new ArrayList<>()
+        );
         PortfolioEntity saved = repo.save(toEntity(portfolio));
-        return toDomain(saved);
+        return toResponse(toDomain(saved));
     }
 
 
@@ -137,7 +146,7 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     public Optional<List<Position>> getPositions(UUID portfolioId) {
         return repo.findById(portfolioId).map(this::toDomain).map(Portfolio::getPositions); 
     }   
-     
+
 
     /*
     This function deletes a position identified by positionId from a portfolio identified by portfolioId. 
@@ -157,6 +166,26 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
         repo.save(portfolio); 
         return true; 
 
+    }
+
+    /*
+    This function converts a Portfolio domain object to a PortfolioResponse DTO.
+    */
+    private PortfolioResponse toResponse(Portfolio portfolio){
+        List<PositionResponse> positions = portfolio.getPositions().stream()
+        .map(p -> new PositionResponse(
+            p.getId(),
+            p.getSymbol(),
+            p.getQuantity(),
+            p.getAvgPrice()
+        )).toList();
+
+        return new PortfolioResponse(
+            portfolio.getId(),
+            portfolio.getName(),
+            portfolio.getOwner(),
+            positions
+        );
     }
 }
 

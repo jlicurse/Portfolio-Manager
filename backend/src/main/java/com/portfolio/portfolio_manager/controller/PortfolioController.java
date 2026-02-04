@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 
 
 import com.portfolio.portfolio_manager.domain.Portfolio;
-import com.portfolio.portfolio_manager.domain.Position;
+import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
+import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.service.PortfolioService;
+import jakarta.validation.Valid;
 
 import java.util.UUID;
 import java.util.List;
@@ -46,9 +48,9 @@ public class PortfolioController {
     }
 
     @PostMapping("/api/portfolios")
-    public ResponseEntity<Portfolio> createPortfolio(@RequestBody Portfolio portfolio) {
-        Portfolio createdPortfolio = portfolioService.createPortfolio(portfolio);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
+    public ResponseEntity<PortfolioResponse> createPortfolio(@Valid @RequestBody PortfolioCreateRequest request) {
+        PortfolioResponse created = portfolioService.createPortfolio(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/api/portfolios/{id}")
