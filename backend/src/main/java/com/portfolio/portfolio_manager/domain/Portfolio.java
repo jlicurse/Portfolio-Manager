@@ -1,5 +1,6 @@
 package com.portfolio.portfolio_manager.domain;
-import java.util.UUID; 
+import java.util.UUID;
+import java.util.ArrayList;
 import java.util.List;
 /*
     This is the domain model class for Portfolio.
@@ -20,7 +21,7 @@ public class Portfolio {
         this.id = id;
         this.name = name;
         this.owner = owner;
-        this.positions = positions;
+        this.positions = positions != null ? positions : new ArrayList<>(); // Ensure positions is never null
     }
 
     public UUID getId() {

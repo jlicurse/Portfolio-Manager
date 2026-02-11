@@ -7,6 +7,7 @@ import com.portfolio.portfolio_manager.persistence.PortfolioEntity;
 import com.portfolio.portfolio_manager.persistence.PositionEntity;
 import com.portfolio.portfolio_manager.persistence.PortfolioRepository;
 import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
+import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.dto.PositionResponse;
 
@@ -41,8 +42,8 @@ public class PortfolioService {
     /*
     This function retrieves all portfolios from the repository, converts them to domain objects, and returns them as a list.
     */
-    public List<Portfolio> getPortfolios() {
-        return repo.findAll().stream().map(this::toDomain).toList();
+    public List<PortfolioResponse> getPortfolios() {
+        return repo.findAll().stream().map(this::toDomain).map(this::toResponse).toList();
     }
 
 
@@ -85,8 +86,8 @@ public class PortfolioService {
 /*
 This function retrieves a portfolio by its ID, converts it to a domain object, and returns it wrapped in an Optional.
 */
-    public Optional<Portfolio> getPortfolioById(UUID id) {
-        return repo.findById(id).map(this::toDomain);
+    public Optional<PortfolioResponse> getPortfolioById(UUID id) {
+        return repo.findById(id).map(this::toDomain).map(this::toResponse);
     }
 
 
@@ -118,25 +119,40 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
         }
     }
 
+
+   /*
+    This function updates an existing portfolio identified by its ID with the provided update request data.
+    It returns an Optional containing the updated portfolio response if the portfolio exists and was updated, or
+    an empty Optional if the portfolio does not exist.
+    */
+
+    public Optional<PortfolioResponse> updatePortfolio(UUID id, PortfolioUpdateRequest request) {
+        return repo.findById(id).map(portfolioEntity -> {
+            portfolioEntity.setName(request.getName());
+            portfolioEntity.setOwner(request.getOwner());
+            PortfolioEntity updated = repo.save(portfolioEntity);
+            return toResponse(toDomain(updated));
+        });
+    }
+
     /*
     This function adds a position to a portfolio identified by portfolioId. 
-    It returns an Optional containing the updated portfolio if found, or an empty Optional if the portfolio does not exist.
+    It returns an Optional containing the updated portfolio response if the portfolio exists and the position was added, or an empty Optional if the portfolio does not exist.
     */
-    public Optional<Portfolio> addPosition(UUID portfolioId, Position position) {
+    public Optional<PortfolioResponse> addPosition(UUID portfolioId, Position position) {
         return repo.findById(portfolioId).map(portfolioEntity -> {
+            
+            PositionEntity positionEntity = new PositionEntity();
+            positionEntity.setSymbol(position.getSymbol());
+            positionEntity.setQuantity(position.getQuantity());
+            positionEntity.setAvgPrice(position.getAvgPrice());
+            positionEntity.setPortfolio(portfolioEntity); 
+            portfolioEntity.getPositions().add(positionEntity);
 
-            PositionEntity pe = new PositionEntity(); 
-            pe.setSymbol(position.getSymbol());
-            pe.setQuantity(position.getQuantity());
-            pe.setAvgPrice(position.getAvgPrice());
-             
-            pe.setPortfolio(portfolioEntity);
-            portfolioEntity.getPositions().add(pe);
-
-            PortfolioEntity updatedEntity = repo.save(portfolioEntity);
-            return toDomain(updatedEntity);
-
-        }); 
+            PortfolioEntity updated = repo.save(portfolioEntity);
+            
+            return toResponse(toDomain(updated));
+        });
     }
 
     /*
