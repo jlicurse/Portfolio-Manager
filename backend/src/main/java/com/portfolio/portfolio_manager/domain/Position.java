@@ -1,6 +1,7 @@
 package com.portfolio.portfolio_manager.domain;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 /*
     This is the domain model class for Position.
@@ -11,14 +12,20 @@ import java.math.BigDecimal;
 
 public class Position {
 
+    private UUID id;    
     private String symbol;
     private BigDecimal quantity;
     private BigDecimal avgPrice;
 
-    public Position(String symbol, BigDecimal quantity, BigDecimal avgPrice) {
+    public Position(UUID id, String symbol, BigDecimal quantity, BigDecimal avgPrice) {
+        this.id = id;
         this.symbol = symbol;
         this.quantity = quantity;
         this.avgPrice = avgPrice;
+    }
+
+     public UUID getId() {
+        return null;
     }
 
     public String getSymbol() {
@@ -44,5 +51,6 @@ public class Position {
     public void setAvgPrice(BigDecimal avgPrice) {
         this.avgPrice = avgPrice;
     }
+
     
 }

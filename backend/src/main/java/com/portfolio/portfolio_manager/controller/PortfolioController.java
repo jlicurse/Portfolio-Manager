@@ -7,8 +7,11 @@ import org.springframework.http.HttpStatus;
 
 
 import com.portfolio.portfolio_manager.domain.Portfolio;
-import com.portfolio.portfolio_manager.domain.Position;
+import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
+import com.portfolio.portfolio_manager.dto.PortfolioResponse;
+import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
 import com.portfolio.portfolio_manager.service.PortfolioService;
+import jakarta.validation.Valid;
 
 import java.util.UUID;
 import java.util.List;
@@ -34,21 +37,21 @@ public class PortfolioController {
     }
 
     @GetMapping("/api/portfolios")
-    public List<Portfolio> getPortfolios() {
+    public List<PortfolioResponse> getPortfolios() {
         return portfolioService.getPortfolios();
 
     }
 
     @GetMapping("/api/portfolios/{id}")
-    public ResponseEntity<Portfolio> getPortfolioById(@PathVariable UUID id) {
+    public ResponseEntity<PortfolioResponse> getPortfolioById(@PathVariable UUID id) {
         return portfolioService.getPortfolioById(id).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/api/portfolios")
-    public ResponseEntity<Portfolio> createPortfolio(@RequestBody Portfolio portfolio) {
-        Portfolio createdPortfolio = portfolioService.createPortfolio(portfolio);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
+    public ResponseEntity<PortfolioResponse> createPortfolio(@Valid @RequestBody PortfolioCreateRequest request) {
+        PortfolioResponse created = portfolioService.createPortfolio(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @DeleteMapping("/api/portfolios/{id}")
@@ -61,6 +64,14 @@ public class PortfolioController {
             return ResponseEntity.notFound().build(); //404 Not Found
         }
     }
+
+    @PutMapping("/api/portfolios/{id}")
+    public ResponseEntity<PortfolioResponse> updatePortfolio(@PathVariable UUID id, @Valid @RequestBody PortfolioUpdateRequest request) {
+        return portfolioService.updatePortfolio(id, request)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+
+}
     
 }
     

@@ -16,10 +16,13 @@ public class PortfolioEntity {
 */
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id; 
     private String name;
     private String owner; 
+
+    @Version
+    private Long version;
 
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true) 

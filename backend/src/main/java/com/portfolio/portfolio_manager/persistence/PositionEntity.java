@@ -30,6 +30,9 @@ public class PositionEntity {
     @JoinColumn(name = "portfolio_id")
     private PortfolioEntity portfolio;
 
+    @Version 
+    private Long version;
+
     public PositionEntity() {}
 
     public UUID getId() {
