@@ -10,7 +10,7 @@ import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.dto.PositionResponse;
-
+import com.portfolio.portfolio_manager.dto.PositionUpdateRequest;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -203,11 +203,31 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
             positions
         );
     }
+
+    /*
+    This function updates a position identified by positionId in a portfolio identified by portfolioId with the provided update request data.
+    It returns an Optional containing the updated portfolio response if the portfolio and position exist and were updated, or an empty Optional if the portfolio or position does not exist.
+    */
+
+    public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, Position position, PositionUpdateRequest request) {
+        return repo.findById(portfolioId).map(portfolioEntity -> {
+            PositionEntity positionEntity = portfolioEntity.getPositions().stream()
+            .filter(p -> p.getId().equals(positionId))
+            .findFirst()
+            .orElse(null);
+        
+            if (positionEntity == null) {
+                return null; 
+            }
+
+            position.setQuantity(request.quantity()); 
+            position.setAvgPrice(request.price());
+
+            PortfolioEntity saved = repo.save(portfolioEntity);
+            return toResponse(toDomain(saved));
+
+        });
+    }
 }
-
-
-
-
-
 
 

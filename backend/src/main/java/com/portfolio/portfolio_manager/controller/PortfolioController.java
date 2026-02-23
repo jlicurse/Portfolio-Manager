@@ -1,15 +1,17 @@
 package com.portfolio.portfolio_manager.controller;
 
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 
 import com.portfolio.portfolio_manager.domain.Portfolio;
+import com.portfolio.portfolio_manager.domain.Position;
 import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
+import com.portfolio.portfolio_manager.dto.PositionCreateRequest;
+import com.portfolio.portfolio_manager.dto.PositionUpdateRequest;
 import com.portfolio.portfolio_manager.service.PortfolioService;
 import jakarta.validation.Valid;
 
@@ -71,8 +73,39 @@ public class PortfolioController {
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
 
-}
-    
+    }
+
+    @PutMapping("/api/portfolios/{portfolioId}/positions/{positionId}")
+    public ResponseEntity<PortfolioResponse> updatePosition(
+        @PathVariable UUID portfolioId, 
+        @PathVariable UUID positionId, 
+        @Valid @RequestBody PositionUpdateRequest request) {
+        
+        return portfolioService.updatePosition(portfolioId, positionId, null, request)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @PostMapping("/api/portfolios/{id}/positions")
+    public ResponseEntity<PortfolioResponse> addPosition( 
+        @PathVariable UUID id, 
+        @Valid @RequestBody PositionCreateRequest request){
+
+            Position position = new Position(
+                null,
+                request.symbol(),
+                request.quantity(),
+                request.avgPrice()
+            );
+
+            return portfolioService.addPosition(id, position)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+
+
+        }
+
 }
     
 
