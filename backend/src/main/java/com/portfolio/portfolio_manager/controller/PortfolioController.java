@@ -81,10 +81,9 @@ public class PortfolioController {
         @PathVariable UUID positionId, 
         @Valid @RequestBody PositionUpdateRequest request) {
         
-        return portfolioService.updatePosition(portfolioId, positionId, null, request)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
-
+        return portfolioService.updatePosition(portfolioId, positionId, request)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/api/portfolios/{id}/positions")

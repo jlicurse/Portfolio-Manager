@@ -207,26 +207,34 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     /*
     This function updates a position identified by positionId in a portfolio identified by portfolioId with the provided update request data.
     It returns an Optional containing the updated portfolio response if the portfolio and position exist and were updated, or an empty Optional if the portfolio or position does not exist.
+
+    -Updated 3/4/2026: Removed position parameter from the function signature, as it is not needed for updating the position. 
+                       The position to be updated is identified by the positionId parameter, 
+                       and the new data for the position is provided in the PositionUpdateRequest object.
     */
 
-    public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, Position position, PositionUpdateRequest request) {
-        return repo.findById(portfolioId).map(portfolioEntity -> {
-            PositionEntity positionEntity = portfolioEntity.getPositions().stream()
+    public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, PositionUpdateRequest request) {
+            Optional<PortfolioEntity> opt = repo.findById(portfolioId);
+            if (opt.isEmpty()) return Optional.empty(); 
+            
+
+            PortfolioEntity portfolio = opt.get();
+
+            PositionEntity positionEntity = portfolio.getPositions().stream()
             .filter(p -> p.getId().equals(positionId))
             .findFirst()
             .orElse(null);
         
             if (positionEntity == null) {
-                return null; 
+                return Optional.empty(); 
             }
 
-            position.setQuantity(request.quantity()); 
-            position.setAvgPrice(request.price());
+            positionEntity.setQuantity(request.quantity()); 
+            positionEntity.setAvgPrice(request.price());
 
-            PortfolioEntity saved = repo.save(portfolioEntity);
-            return toResponse(toDomain(saved));
+            PortfolioEntity saved = repo.save(portfolio);
+            return Optional.of(toResponse(toDomain(saved)));
 
-        });
     }
 }
 
