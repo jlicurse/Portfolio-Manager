@@ -13,7 +13,7 @@ import java.util.UUID;
 public record PositionResponse(
     UUID id, 
     String symbol, 
-    BigDecimal quantity, 
+    Integer quantity, 
     BigDecimal avgPrice
 
  )  {}

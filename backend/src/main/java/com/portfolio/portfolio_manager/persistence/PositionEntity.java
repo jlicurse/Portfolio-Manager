@@ -17,11 +17,11 @@ import java.util.UUID;
 public class PositionEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String symbol;
-    private BigDecimal quantity;
+    private Integer quantity;
 
     @Column(precision = 19, scale = 4)
     private BigDecimal avgPrice;
@@ -43,7 +43,7 @@ public class PositionEntity {
         return symbol;
     }
 
-    public BigDecimal getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
@@ -63,7 +63,7 @@ public class PositionEntity {
         this.symbol = symbol;
     }
 
-    public void setQuantity(BigDecimal quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

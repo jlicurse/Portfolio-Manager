@@ -14,10 +14,10 @@ public class Position {
 
     private UUID id;    
     private String symbol;
-    private BigDecimal quantity;
+    private Integer quantity;
     private BigDecimal avgPrice;
 
-    public Position(UUID id, String symbol, BigDecimal quantity, BigDecimal avgPrice) {
+    public Position(UUID id, String symbol, Integer quantity, BigDecimal avgPrice) {
         this.id = id;
         this.symbol = symbol;
         this.quantity = quantity;
@@ -25,14 +25,14 @@ public class Position {
     }
 
      public UUID getId() {
-        return null;
+        return id; //was returning null for some reason and blew up the tests
     }
 
     public String getSymbol() {
         return symbol;
     }
 
-    public BigDecimal getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
@@ -44,7 +44,7 @@ public class Position {
         this.symbol = symbol;
     }
 
-    public void setQuantity(BigDecimal quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

@@ -138,21 +138,29 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     /*
     This function adds a position to a portfolio identified by portfolioId. 
     It returns an Optional containing the updated portfolio response if the portfolio exists and the position was added, or an empty Optional if the portfolio does not exist.
-    */
+    
+     */
+    
+    
     public Optional<PortfolioResponse> addPosition(UUID portfolioId, Position position) {
-        return repo.findById(portfolioId).map(portfolioEntity -> {
-            
-            PositionEntity positionEntity = new PositionEntity();
-            positionEntity.setSymbol(position.getSymbol());
-            positionEntity.setQuantity(position.getQuantity());
-            positionEntity.setAvgPrice(position.getAvgPrice());
-            positionEntity.setPortfolio(portfolioEntity); 
-            portfolioEntity.getPositions().add(positionEntity);
+        Optional<PortfolioEntity> opt = repo.findById(portfolioId);
+        if (opt.isEmpty()) {
+            return Optional.empty();
+        }
 
-            PortfolioEntity updated = repo.save(portfolioEntity);
-            
-            return toResponse(toDomain(updated));
-        });
+        PortfolioEntity portfolioEntity = opt.get();
+
+        PositionEntity positionEntity = new PositionEntity();
+        positionEntity.setSymbol(position.getSymbol());
+        positionEntity.setQuantity(position.getQuantity());
+        positionEntity.setAvgPrice(position.getAvgPrice());
+        positionEntity.setPortfolio(portfolioEntity);
+
+        portfolioEntity.getPositions().add(positionEntity);
+
+        PortfolioEntity saved = repo.save(portfolioEntity);
+
+        return Optional.of(toResponse(toDomain(saved)));
     }
 
     /*
@@ -166,7 +174,7 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
 
     /*
     This function deletes a position identified by positionId from a portfolio identified by portfolioId. 
-    It returns true if the position was found and deleted, or false if the portfolio or position
+    It returns true if the position was found and deleted, or false if the portfolio or position does not exist.
     */
     public boolean deletePosition(UUID portfolioId, UUID positionId){
         Optional<PortfolioEntity> opt = repo.findById(portfolioId); 
@@ -214,27 +222,28 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     */
 
     public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, PositionUpdateRequest request) {
-            Optional<PortfolioEntity> opt = repo.findById(portfolioId);
-            if (opt.isEmpty()) return Optional.empty(); 
-            
+        Optional<PortfolioEntity> opt = repo.findById(portfolioId);
+        if (opt.isEmpty()) {
+            return Optional.empty();
+        }
 
-            PortfolioEntity portfolio = opt.get();
+        PortfolioEntity portfolio = opt.get();
 
-            PositionEntity positionEntity = portfolio.getPositions().stream()
-            .filter(p -> p.getId().equals(positionId))
-            .findFirst()
-            .orElse(null);
-        
-            if (positionEntity == null) {
-                return Optional.empty(); 
-            }
+        PositionEntity positionEntity = portfolio.getPositions().stream()
+                .filter(p -> p.getId().equals(positionId))
+                .findFirst()
+                .orElse(null);
 
-            positionEntity.setQuantity(request.quantity()); 
-            positionEntity.setAvgPrice(request.price());
+        if (positionEntity == null) {
+            return Optional.empty();
+        }
 
-            PortfolioEntity saved = repo.save(portfolio);
-            return Optional.of(toResponse(toDomain(saved)));
+        positionEntity.setQuantity(request.quantity());
+        positionEntity.setAvgPrice(request.avgPrice());
 
+        PortfolioEntity saved = repo.save(portfolio);
+
+        return Optional.of(toResponse(toDomain(saved)));
     }
 }
 
