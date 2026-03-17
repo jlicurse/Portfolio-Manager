@@ -15,6 +15,8 @@ public record PositionResponse(
     String symbol, 
     Integer quantity, 
     BigDecimal avgPrice, 
-    BigDecimal costBasis
-
+    BigDecimal costBasis, 
+    BigDecimal currentPrice, 
+    BigDecimal marketValue,
+    BigDecimal unrealizedGainLoss
  )  {}

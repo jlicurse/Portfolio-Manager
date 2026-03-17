@@ -17,13 +17,16 @@ public class Position {
     private String symbol;
     private Integer quantity;
     private BigDecimal avgPrice;
+    private BigDecimal currentPrice; 
 
-    public Position(UUID id, String symbol, Integer quantity, BigDecimal avgPrice) {
+    public Position(UUID id, String symbol, Integer quantity, BigDecimal avgPrice, BigDecimal currentPrice) {
         this.id = id;
         this.symbol = symbol;
         this.quantity = quantity;
         this.avgPrice = avgPrice;
-    }
+        this.currentPrice = currentPrice;
+
+  }
 
      public UUID getId() {
         return id; //was returning null for some reason and blew up the tests
@@ -41,6 +44,10 @@ public class Position {
         return avgPrice;
     }
 
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
+    }
+
     public void setSymbol(String symbol) {
         this.symbol = symbol;
     }
@@ -53,6 +60,10 @@ public class Position {
         this.avgPrice = avgPrice;
     }
 
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
     public BigDecimal getCostBasis() {
         if (quantity == null || avgPrice == null) {
             return BigDecimal.ZERO;
@@ -60,5 +71,19 @@ public class Position {
 
         return avgPrice.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
     }
+
+    public BigDecimal getMarketValue() {
+        if (quantity == null || currentPrice == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return currentPrice.multiply(BigDecimal.valueOf(quantity));
+    }   
+
+    public BigDecimal getUnrealizedGainLoss() {
+        return getMarketValue().subtract(getCostBasis());
+    }
+
+    
     
 }

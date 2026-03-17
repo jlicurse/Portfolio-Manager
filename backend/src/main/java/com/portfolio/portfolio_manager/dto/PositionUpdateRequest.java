@@ -13,5 +13,11 @@ public record PositionUpdateRequest(
 
     @NotNull(message = "avgPrice is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "avgPrice must be greater than 0")
-    BigDecimal avgPrice
+   
+    BigDecimal avgPrice, 
+
+    @DecimalMin(value = "0.0", inclusive = false, message = "currentPrice must be greater than 0")
+    BigDecimal currentPrice
+
+    
 ) {}

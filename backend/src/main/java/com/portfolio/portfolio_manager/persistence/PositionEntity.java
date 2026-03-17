@@ -26,6 +26,10 @@ public class PositionEntity {
     @Column(precision = 19, scale = 4)
     private BigDecimal avgPrice;
 
+    @Column(nullable = false, precision = 19, scale = 4)
+    private BigDecimal currentPrice;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id")
     private PortfolioEntity portfolio;
@@ -51,8 +55,8 @@ public class PositionEntity {
         return avgPrice;
     }
 
-    public PortfolioEntity getPortfolio() {
-        return portfolio;
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
     }
 
     public void setId(UUID id) {
@@ -73,6 +77,10 @@ public class PositionEntity {
 
     public void setPortfolio(PortfolioEntity portfolio) {
         this.portfolio = portfolio;
+    }
+
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
     }
 
     

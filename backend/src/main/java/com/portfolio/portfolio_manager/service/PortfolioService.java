@@ -49,13 +49,16 @@ public class PortfolioService {
 
     /*
     This function converts a PortfolioEntity to a Portfolio domain object.
+
+        -Updated 3/17/2026: Added mapping for currentPrice in PositionEntity to Position domain object, as currentPrice is now a required field in the Position domain model and is needed for calculating the cost basis and total cost basis of the portfolio.
     */
     public Portfolio toDomain(PortfolioEntity entity) { 
         List<Position> positions = entity.getPositions().stream().map(p -> new Position(
             p.getId(),           
             p.getSymbol(), 
             p.getQuantity(),
-            p.getAvgPrice()
+            p.getAvgPrice(), 
+            p.getCurrentPrice()
         )).toList(); 
 
         return new Portfolio(entity.getId(), entity.getName(), entity.getOwner(), positions);
@@ -63,6 +66,8 @@ public class PortfolioService {
 
     /*
     This function converts a Portfolio domain object to a PortfolioEntity.
+
+        -Updated 3/17/2026: Added mapping for currentPrice in Position domain object to PositionEntity, as currentPrice is now a required field in the Position domain model and is needed for calculating the cost basis and total cost basis of the portfolio.
     */
     private PortfolioEntity toEntity(Portfolio d) {
         PortfolioEntity e = new PortfolioEntity(); 
@@ -75,6 +80,7 @@ public class PortfolioService {
                 pe.setSymbol(p.getSymbol());
                 pe.setQuantity(p.getQuantity());
                 pe.setAvgPrice(p.getAvgPrice());
+                pe.setCurrentPrice(p.getCurrentPrice());
                 pe.setPortfolio(e); 
                 e.getPositions().add(pe);
         }
@@ -139,6 +145,8 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     This function adds a position to a portfolio identified by portfolioId. 
     It returns an Optional containing the updated portfolio response if the portfolio exists and the position was added, or an empty Optional if the portfolio does not exist.
     
+    -Updated 3/17/2026: Added setting of currentPrice in PositionEntity when adding a new position, as currentPrice is now a required field in the Position domain model and 
+                        is needed for calculating the cost basis and total cost basis of the portfolio.
      */
     
     
@@ -154,6 +162,7 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
         positionEntity.setSymbol(position.getSymbol());
         positionEntity.setQuantity(position.getQuantity());
         positionEntity.setAvgPrice(position.getAvgPrice());
+        positionEntity.setCurrentPrice(position.getCurrentPrice());
         positionEntity.setPortfolio(portfolioEntity);
 
         portfolioEntity.getPositions().add(positionEntity);
@@ -194,6 +203,10 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
 
     /*
     This function converts a Portfolio domain object to a PortfolioResponse DTO.
+    
+    -Updated 3/17/2026: Added costBasis to PositionResponse mapping and totalCostBasis and positionCount to PortfolioResponse, 
+                        as these fields are now needed on the frontend for displaying the cost basis of each position and the 
+                        total cost basis of the portfolio, as well as the number of positions in the portfolio.
     */
     private PortfolioResponse toResponse(Portfolio portfolio){
         List<PositionResponse> positions = portfolio.getPositions().stream()
@@ -202,7 +215,10 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
             p.getSymbol(),
             p.getQuantity(),
             p.getAvgPrice(), 
-            p.getCostBasis()
+            p.getCostBasis(), 
+            p.getCurrentPrice(),
+            p.getMarketValue(),
+            p.getUnrealizedGainLoss()
         )).toList();
 
         return new PortfolioResponse(
@@ -222,6 +238,10 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     -Updated 3/4/2026: Removed position parameter from the function signature, as it is not needed for updating the position. 
                        The position to be updated is identified by the positionId parameter, 
                        and the new data for the position is provided in the PositionUpdateRequest object.
+
+    -Updated 3/17/2026: Added updating of currentPrice in PositionEntity when updating a position, as currentPrice is now a required field in the Position domain model and 
+                        is needed for calculating the cost basis and total cost basis of the portfolio.
+    
     */
 
     public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, PositionUpdateRequest request) {
@@ -243,6 +263,7 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
 
         positionEntity.setQuantity(request.quantity());
         positionEntity.setAvgPrice(request.avgPrice());
+        positionEntity.setCurrentPrice(request.currentPrice());
 
         PortfolioEntity saved = repo.save(portfolio);
 

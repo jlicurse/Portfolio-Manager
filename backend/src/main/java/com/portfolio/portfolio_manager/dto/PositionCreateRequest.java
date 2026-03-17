@@ -6,10 +6,21 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
+/*
+    This is the DTO class for creating a Position.
+    DTO (Data Transfer Object) classes are used to transfer data between layers of the application.
+*/
+
 public record PositionCreateRequest(
         @NotBlank(message = "symbol is required") String symbol,
+
         @NotNull(message = "quantity is required") Integer quantity,
+        
         @NotNull(message = "avgPrice is required")
         @DecimalMin(value = "0.0", inclusive = false, message = "avgPrice must be greater than 0")
-        BigDecimal avgPrice
+        
+        BigDecimal avgPrice, 
+        
+        @DecimalMin(value = "0.0", inclusive = false, message = "currentPrice must be greater than 0")
+        BigDecimal currentPrice
 ) {}

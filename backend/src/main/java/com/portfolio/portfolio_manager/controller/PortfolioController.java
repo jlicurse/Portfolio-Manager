@@ -95,7 +95,8 @@ public class PortfolioController {
                 null,
                 request.symbol(),
                 request.quantity(),
-                request.avgPrice()
+                request.avgPrice(), 
+                request.currentPrice()
             );
 
             return portfolioService.addPosition(id, position)
