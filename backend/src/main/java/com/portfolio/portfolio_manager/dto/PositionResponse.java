@@ -14,6 +14,7 @@ public record PositionResponse(
     UUID id, 
     String symbol, 
     Integer quantity, 
-    BigDecimal avgPrice
+    BigDecimal avgPrice, 
+    BigDecimal costBasis
 
  )  {}

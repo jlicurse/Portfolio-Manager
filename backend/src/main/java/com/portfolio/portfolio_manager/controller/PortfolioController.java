@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
 
-import com.portfolio.portfolio_manager.domain.Portfolio;
 import com.portfolio.portfolio_manager.domain.Position;
 import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
@@ -30,6 +29,7 @@ import java.util.List;
   
 
 @RestController
+@RequestMapping("/api/portfolios")
 public class PortfolioController {
     
     private final PortfolioService portfolioService;
@@ -38,25 +38,25 @@ public class PortfolioController {
         this.portfolioService = portfolioService;
     }
 
-    @GetMapping("/api/portfolios")
+    @GetMapping
     public List<PortfolioResponse> getPortfolios() {
         return portfolioService.getPortfolios();
 
     }
 
-    @GetMapping("/api/portfolios/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<PortfolioResponse> getPortfolioById(@PathVariable UUID id) {
         return portfolioService.getPortfolioById(id).map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/api/portfolios")
+    @PostMapping
     public ResponseEntity<PortfolioResponse> createPortfolio(@Valid @RequestBody PortfolioCreateRequest request) {
         PortfolioResponse created = portfolioService.createPortfolio(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @DeleteMapping("/api/portfolios/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePortfolio(@PathVariable UUID id) {
         boolean deleted = portfolioService.deletePortfolio(id); 
 
@@ -67,7 +67,7 @@ public class PortfolioController {
         }
     }
 
-    @PutMapping("/api/portfolios/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<PortfolioResponse> updatePortfolio(@PathVariable UUID id, @Valid @RequestBody PortfolioUpdateRequest request) {
         return portfolioService.updatePortfolio(id, request)
         .map(ResponseEntity::ok)
@@ -75,7 +75,7 @@ public class PortfolioController {
 
     }
 
-    @PutMapping("/api/portfolios/{portfolioId}/positions/{positionId}")
+    @PutMapping("/{portfolioId}/positions/{positionId}")
     public ResponseEntity<PortfolioResponse> updatePosition(
         @PathVariable UUID portfolioId, 
         @PathVariable UUID positionId, 
@@ -86,7 +86,7 @@ public class PortfolioController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/api/portfolios/{id}/positions")
+    @PostMapping("/{id}/positions")
     public ResponseEntity<PortfolioResponse> addPosition( 
         @PathVariable UUID id, 
         @Valid @RequestBody PositionCreateRequest request){
@@ -99,7 +99,7 @@ public class PortfolioController {
             );
 
             return portfolioService.addPosition(id, position)
-            .map(ResponseEntity::ok)
+            .map(updated ->ResponseEntity.status(HttpStatus.CREATED).body(updated))
             .orElse(ResponseEntity.notFound().build());
 
 

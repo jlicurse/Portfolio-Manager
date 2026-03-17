@@ -1,6 +1,7 @@
 package com.portfolio.portfolio_manager.domain;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 /*
@@ -52,5 +53,12 @@ public class Position {
         this.avgPrice = avgPrice;
     }
 
+    public BigDecimal getCostBasis() {
+        if (quantity == null || avgPrice == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return avgPrice.multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP);
+    }
     
 }

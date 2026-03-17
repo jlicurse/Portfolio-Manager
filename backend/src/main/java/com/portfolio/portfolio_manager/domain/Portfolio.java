@@ -1,5 +1,6 @@
 package com.portfolio.portfolio_manager.domain;
 import java.util.UUID;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 /*
@@ -56,5 +57,17 @@ public class Portfolio {
         this.owner = owner;
     }
 
-    
+    public BigDecimal getTotalCostBasis() {
+        if (positions == null || positions.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return positions.stream()
+                        .map(Position::getCostBasis)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public int getPositionCount() {
+            return positions == null ? 0 : positions.size();
+    }
 }

@@ -201,14 +201,17 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
             p.getId(),
             p.getSymbol(),
             p.getQuantity(),
-            p.getAvgPrice()
+            p.getAvgPrice(), 
+            p.getCostBasis()
         )).toList();
 
         return new PortfolioResponse(
             portfolio.getId(),
             portfolio.getName(),
             portfolio.getOwner(),
-            positions
+            positions, 
+            portfolio.getTotalCostBasis(),
+            portfolio.getPositionCount()    
         );
     }
 
