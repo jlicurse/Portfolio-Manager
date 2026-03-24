@@ -22,7 +22,7 @@ public class MarketDataService {
 
     public MarketDataService(RestClient.Builder restClientBuilder, @Value("${finnhub.api.key}") String apiKey) {
         this.restClient = restClientBuilder.baseUrl("https://finnhub.io/api/v1").build();
-        this.apiKey = apiKey;//"d6utqi1r01qig545sf7gd6utqi1r01qig545sf80";
+        this.apiKey = apiKey;
 
         System.out.println("DEBUG TEST 12345");
         System.out.println("FULL API KEY: [" + apiKey + "]");
