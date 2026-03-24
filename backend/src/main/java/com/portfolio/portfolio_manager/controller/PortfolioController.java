@@ -106,6 +106,14 @@ public class PortfolioController {
 
         }
 
+
+    @PostMapping("/{id}/refresh-prices")
+    public ResponseEntity<PortfolioResponse> refreshPrices(@PathVariable UUID id) {
+        return portfolioService.refreshPrices(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
 }
     
 
