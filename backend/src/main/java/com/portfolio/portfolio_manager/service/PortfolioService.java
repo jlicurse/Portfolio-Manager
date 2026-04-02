@@ -230,6 +230,9 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
             portfolio.getOwner(),
             positions, 
             portfolio.getTotalCostBasis(),
+            portfolio.getTotalMarketValue(),
+            portfolio.getTotalUnrealizedGainLoss(),
+            portfolio.getTotalReturnPercentage(),
             portfolio.getPositionCount()    
         );
     }

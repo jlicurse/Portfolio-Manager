@@ -19,6 +19,9 @@ public record PortfolioResponse (
     String owner,
     List<PositionResponse> positions, 
     BigDecimal totalCostBasis, 
+    BigDecimal totalMarketValue, 
+    BigDecimal totalUnrealizedGainLoss,
+    BigDecimal totalReturnPercentage, 
     int positionCount
 ) {}
     

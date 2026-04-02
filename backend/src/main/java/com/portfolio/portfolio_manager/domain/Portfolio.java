@@ -1,6 +1,7 @@
 package com.portfolio.portfolio_manager.domain;
 import java.util.UUID;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 /*
@@ -69,5 +70,38 @@ public class Portfolio {
 
     public int getPositionCount() {
             return positions == null ? 0 : positions.size();
+    }
+
+    public BigDecimal getTotalMarketValue() { 
+        if (positions == null || positions.isEmpty()) { 
+            return BigDecimal.ZERO;
+        }
+
+        return positions.stream()
+        .map(Position::getMarketValue)
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getTotalUnrealizedGainLoss() { 
+        if (positions == null || positions.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return positions.stream()
+                        .map(Position::getUnrealizedGainLoss)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getTotalReturnPercentage() { 
+        BigDecimal totalCostBasis = getTotalCostBasis(); 
+
+        if (totalCostBasis.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO; // Avoid division by zero
+        }
+
+        return getTotalUnrealizedGainLoss().divide(totalCostBasis, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+
     }
 }
