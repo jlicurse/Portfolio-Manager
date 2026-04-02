@@ -36,3 +36,6 @@ build/
 backend/data/
 *.mv.db
 *.trace.db
+
+# Half-way powerpoint 
+*.pptx

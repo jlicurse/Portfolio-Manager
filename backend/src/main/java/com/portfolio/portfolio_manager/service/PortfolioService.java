@@ -11,6 +11,7 @@ import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.dto.PositionResponse;
 import com.portfolio.portfolio_manager.dto.PositionUpdateRequest;
+import com.portfolio.portfolio_manager.market.MarketDataService;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -29,13 +30,15 @@ import java.util.*;
 public class PortfolioService {
 
     private final PortfolioRepository repo;
+    private final MarketDataService marketDataService;
 
     /*
     This function is the constructor for PortfolioService.
     It initializes the PortfolioService with a PortfolioRepository instance.
     */ 
-    public PortfolioService(PortfolioRepository repo) {
+    public PortfolioService(PortfolioRepository repo, MarketDataService marketDataService) {
         this.repo = repo;
+        this.marketDataService = marketDataService;
     }
 
 
@@ -269,6 +272,25 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
 
         return Optional.of(toResponse(toDomain(saved)));
     }
+
+    public Optional<PortfolioResponse> refreshPrices(UUID portfolioId){ 
+        Optional<PortfolioEntity> opt = repo.findById(portfolioId); 
+        if (opt.isEmpty()) { 
+            return Optional.empty(); 
+        }
+
+        PortfolioEntity portfolio = opt.get(); 
+
+        for (PositionEntity position : portfolio.getPositions()) { 
+            BigDecimal livePrice = marketDataService.getCurrentPrice(position.getSymbol());
+            position.setCurrentPrice(livePrice);
+        }
+
+        PortfolioEntity saved = repo.save(portfolio); 
+        return Optional.of(toResponse(toDomain(saved)));
+        
+    }
+
 }
 
 
