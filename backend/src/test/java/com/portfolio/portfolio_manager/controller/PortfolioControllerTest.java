@@ -56,7 +56,7 @@ public class PortfolioControllerTest {
         String json = mockMvc.perform(post("/api/portfolios/{id}/positions", portfolioId)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(portfolioId))
             .andExpect(jsonPath("$.positions", notNullValue()))
@@ -108,7 +108,7 @@ public class PortfolioControllerTest {
     }
 
     @Test
-    void addPosition_toExistingPortfolio_returns200_andUpdatedPortfolio() throws Exception {
+    void addPosition_toExistingPortfolio_returns201_andUpdatedPortfolio() throws Exception {
         String portfolioId = createPortfolioAndGetId("P1", "Jonathan"); 
 
          mockMvc.perform(post("/api/portfolios/{id}/positions", portfolioId)
@@ -116,7 +116,7 @@ public class PortfolioControllerTest {
                         .content("""
                                 {"symbol":"AAPL","quantity":10,"avgPrice":120.00}
                                 """))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(portfolioId))
                 .andExpect(jsonPath("$.positions", hasSize(greaterThanOrEqualTo(1))))

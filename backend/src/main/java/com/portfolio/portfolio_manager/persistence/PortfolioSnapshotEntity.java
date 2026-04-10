@@ -64,7 +64,7 @@ public class PortfolioSnapshotEntity {
         this.timestamp = timestamp;
     }
 
-    public BigDecimal getTotalValue() {
+    public BigDecimal getTotalMarketValue() {
         return totalValue;
     }
 

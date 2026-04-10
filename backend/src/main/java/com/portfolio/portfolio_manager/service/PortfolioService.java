@@ -1,19 +1,24 @@
 package com.portfolio.portfolio_manager.service;
 
 import com.portfolio.portfolio_manager.domain.Portfolio;
+import com.portfolio.portfolio_manager.domain.PortfolioSnapshot;
 import com.portfolio.portfolio_manager.domain.Position; 
 import org.springframework.stereotype.Service; 
 import com.portfolio.portfolio_manager.persistence.PortfolioEntity;
 import com.portfolio.portfolio_manager.persistence.PositionEntity;
 import com.portfolio.portfolio_manager.persistence.PortfolioRepository;
+import com.portfolio.portfolio_manager.persistence.PortfolioSnapshotEntity;
+import com.portfolio.portfolio_manager.persistence.PortfolioSnapshotRepository;
 import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
+import com.portfolio.portfolio_manager.dto.PortfolioSnapshotResponse;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
 import com.portfolio.portfolio_manager.dto.PositionResponse;
 import com.portfolio.portfolio_manager.dto.PositionUpdateRequest;
 import com.portfolio.portfolio_manager.market.MarketDataService;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.*;
 
 /*
@@ -30,14 +35,16 @@ import java.util.*;
 public class PortfolioService {
 
     private final PortfolioRepository repo;
+    private final PortfolioSnapshotRepository snapshotRepo; 
     private final MarketDataService marketDataService;
 
     /*
     This function is the constructor for PortfolioService.
-    It initializes the PortfolioService with a PortfolioRepository instance.
+    It initializes the PortfolioService with a PortfolioRepository instance, a PortfolioSnapshotRepository instance, and a MarketDataService instance.
     */ 
-    public PortfolioService(PortfolioRepository repo, MarketDataService marketDataService) {
+    public PortfolioService(PortfolioRepository repo, PortfolioSnapshotRepository snapshotRepo, MarketDataService marketDataService) {
         this.repo = repo;
+        this.snapshotRepo = snapshotRepo;
         this.marketDataService = marketDataService;
     }
 
@@ -92,9 +99,9 @@ public class PortfolioService {
     return e; 
 }
 
-/*
-This function retrieves a portfolio by its ID, converts it to a domain object, and returns it wrapped in an Optional.
-*/
+    /*
+    This function retrieves a portfolio by its ID, converts it to a domain object, and returns it wrapped in an Optional.
+    */
     public Optional<PortfolioResponse> getPortfolioById(UUID id) {
         return repo.findById(id).map(this::toDomain).map(this::toResponse);
     }
@@ -150,6 +157,10 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     
     -Updated 3/17/2026: Added setting of currentPrice in PositionEntity when adding a new position, as currentPrice is now a required field in the Position domain model and 
                         is needed for calculating the cost basis and total cost basis of the portfolio.
+
+    -Updated 4/8/2026: Added fallback to avg price if current price is not provided when adding a new position, as currentPrice is now a required field in the Position domain 
+                       model and is needed for calculating the cost basis and total cost basis of the portfolio. 
+                    .
      */
     
     
@@ -165,7 +176,11 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
         positionEntity.setSymbol(position.getSymbol());
         positionEntity.setQuantity(position.getQuantity());
         positionEntity.setAvgPrice(position.getAvgPrice());
-        positionEntity.setCurrentPrice(position.getCurrentPrice());
+        positionEntity.setCurrentPrice(
+            position.getCurrentPrice() != null
+                ? position.getCurrentPrice()
+                : position.getAvgPrice()
+        );
         positionEntity.setPortfolio(portfolioEntity);
 
         portfolioEntity.getPositions().add(positionEntity);
@@ -248,6 +263,8 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
     -Updated 3/17/2026: Added updating of currentPrice in PositionEntity when updating a position, as currentPrice is now a required field in the Position domain model and 
                         is needed for calculating the cost basis and total cost basis of the portfolio.
     
+    -Updated 4/10/2026: Updated the updatePosition method to only set the currentPrice on the position if the PositionUpdateRequest contains a non-null currentPrice value; 
+                        if the request does not supply a currentPrice, the existing currentPrice on the position is preserved.   
     */
 
     public Optional<PortfolioResponse> updatePosition(UUID portfolioId, UUID positionId, PositionUpdateRequest request) {
@@ -269,13 +286,18 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
 
         positionEntity.setQuantity(request.quantity());
         positionEntity.setAvgPrice(request.avgPrice());
-        positionEntity.setCurrentPrice(request.currentPrice());
+        positionEntity.setCurrentPrice(request.currentPrice() != null ? request.currentPrice() : positionEntity.getCurrentPrice());
 
         PortfolioEntity saved = repo.save(portfolio);
 
         return Optional.of(toResponse(toDomain(saved)));
     }
 
+    /*
+    This function refreshes the current prices of all positions in a portfolio identified by portfolioId.   
+    It returns an Optional containing the updated portfolio response if the portfolio exists and the 
+    prices were refreshed, or an empty Optional if the portfolio does not exist.    
+    */
     public Optional<PortfolioResponse> refreshPrices(UUID portfolioId){ 
         Optional<PortfolioEntity> opt = repo.findById(portfolioId); 
         if (opt.isEmpty()) { 
@@ -294,6 +316,52 @@ This function retrieves a portfolio by its ID, converts it to a domain object, a
         
     }
 
+    /*
+    This function creates a snapshot of the current state of a portfolio identified by portfolioId.
+    It returns an Optional containing the created PortfolioSnapshotResponse if the portfolio exists and the snapshot was created, or an empty Optional if the portfolio does not exist.
+    */
+
+    public Optional<PortfolioSnapshotResponse> createSnapshot(UUID portfolioId) {
+        return repo.findById(portfolioId).map(entity -> { 
+            Portfolio portfolio = toDomain(entity); 
+
+            PortfolioSnapshotEntity snapshotEntity = new PortfolioSnapshotEntity();
+            snapshotEntity.setPortfolioId(portfolio.getId());
+            snapshotEntity.setTimestamp(Instant.now());
+            snapshotEntity.setTotalValue(portfolio.getTotalMarketValue());
+            snapshotEntity.setTotalCostBasis(portfolio.getTotalCostBasis());
+            snapshotEntity.setTotalUnrealizedGainLoss(portfolio.getTotalUnrealizedGainLoss());
+
+            PortfolioSnapshotEntity savedSnapshot = snapshotRepo.save(snapshotEntity);
+
+            return new PortfolioSnapshotResponse(
+                savedSnapshot.getId(),
+                savedSnapshot.getPortfolioId(),
+                savedSnapshot.getTimestamp(),
+                savedSnapshot.getTotalMarketValue(),
+                savedSnapshot.getTotalCostBasis(),
+                savedSnapshot.getTotalUnrealizedGainLoss()
+            );
+        });
+    }
+
+    private PortfolioSnapshotResponse toSnapshotResponse(PortfolioSnapshotEntity s) {
+    return new PortfolioSnapshotResponse(
+        s.getId(),
+        s.getPortfolioId(),
+        s.getTimestamp(),
+        s.getTotalMarketValue(),
+        s.getTotalCostBasis(),
+        s.getTotalUnrealizedGainLoss()
+        );
+    }
+
+    public List<PortfolioSnapshotResponse> getSnapshotsForPortfolio(UUID portfolioId) {
+        return snapshotRepo.findByPortfolioIdOrderByTimestampAsc(portfolioId).stream()
+            .map(this::toSnapshotResponse)
+            .toList();
+    }
 }
+
 
 

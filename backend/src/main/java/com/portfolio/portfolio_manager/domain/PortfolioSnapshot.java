@@ -53,7 +53,7 @@ public class PortfolioSnapshot {
         this.timestamp = timestamp;
     }
 
-    public BigDecimal getTotalValue() {
+    public BigDecimal getTotalMarketValue() {
         return totalValue;
     }
 

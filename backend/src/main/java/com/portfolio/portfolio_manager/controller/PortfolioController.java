@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import com.portfolio.portfolio_manager.domain.Position;
 import com.portfolio.portfolio_manager.dto.PortfolioCreateRequest;
 import com.portfolio.portfolio_manager.dto.PortfolioResponse;
+import com.portfolio.portfolio_manager.dto.PortfolioSnapshotResponse;
 import com.portfolio.portfolio_manager.dto.PortfolioUpdateRequest;
 import com.portfolio.portfolio_manager.dto.PositionCreateRequest;
 import com.portfolio.portfolio_manager.dto.PositionUpdateRequest;
@@ -111,6 +112,13 @@ public class PortfolioController {
     public ResponseEntity<PortfolioResponse> refreshPrices(@PathVariable UUID id) {
         return portfolioService.refreshPrices(id)
             .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/snapshot")
+    public ResponseEntity<PortfolioSnapshotResponse> createSnapshot(@PathVariable UUID id) {
+        return portfolioService.createSnapshot(id)
+            .map(response -> ResponseEntity.status(HttpStatus.CREATED).body(response))
             .orElse(ResponseEntity.notFound().build());
     }
 
