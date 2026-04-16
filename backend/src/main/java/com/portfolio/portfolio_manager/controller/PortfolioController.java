@@ -122,6 +122,11 @@ public class PortfolioController {
             .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{id}/history")
+    public ResponseEntity<List<PortfolioSnapshotResponse>> getSnapshotHistory(@PathVariable UUID id) {
+        return ResponseEntity.ok(portfolioService.getSnapshotsForPortfolio(id));
+    }
+
 }
     
 

@@ -346,13 +346,13 @@ public class PortfolioService {
     }
 
     private PortfolioSnapshotResponse toSnapshotResponse(PortfolioSnapshotEntity s) {
-    return new PortfolioSnapshotResponse(
-        s.getId(),
-        s.getPortfolioId(),
-        s.getTimestamp(),
-        s.getTotalMarketValue(),
-        s.getTotalCostBasis(),
-        s.getTotalUnrealizedGainLoss()
+        return new PortfolioSnapshotResponse(
+            s.getId(),
+            s.getPortfolioId(),
+            s.getTimestamp(),
+            s.getTotalMarketValue(),
+            s.getTotalCostBasis(),
+            s.getTotalUnrealizedGainLoss()
         );
     }
 
