@@ -24,11 +24,6 @@ public class MarketDataService {
         this.restClient = restClientBuilder.baseUrl("https://finnhub.io/api/v1").build();
         this.apiKey = apiKey;
 
-        System.out.println("DEBUG TEST 12345");
-        System.out.println("FULL API KEY: [" + apiKey + "]");
-
-        System.out.println("API key starts with: " + apiKey.substring(0, 5));
-        System.out.println("API key length: " + apiKey.length());
 }
 
     public BigDecimal getCurrentPrice(String symbol) {
@@ -39,12 +34,6 @@ public class MarketDataService {
                         .build())
                 .retrieve()
                 .body(MarketQuoteResponse.class); 
-
-                //Debugging 
-                System.out.println("API response: " + response);
-                System.out.println("Refreshing symbol: " + symbol);
-                System.out.println("Raw mapped response: " + response);
-                System.out.println("Mapped current price: " + (response == null ? null : response.currentPrice()));
 
         if (response == null || response.currentPrice() == null) {
             throw new RuntimeException("No market price returned for symbol: " + symbol);
